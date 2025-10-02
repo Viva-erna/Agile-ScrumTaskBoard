@@ -1,0 +1,548 @@
+﻿<Window x:Class="DMaster.Views.MainView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"       
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"  
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}"
+        Title=""
+        Icon="/Resources/logo.ico"
+        WindowState="Maximized"
+        xmlns:converter="clr-namespace:DMaster.Model.Helpers"
+        >
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ComboBox.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Shadows.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ToggleButton.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Popupbox.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <!-- шаблон данных, используемый в примере с диалоговыми окнами, определяет представление для ViewModel типа DateTime -->
+            <converter:PossessionToBoolConverter x:Key="converter" />
+        </ResourceDictionary>
+    </Window.Resources>
+    <materialDesign:DialogHost Identifier="RootDialog" SnackbarMessageQueue="{Binding ElementName=MainSnackbar, Path=MessageQueue}">
+        <materialDesign:DrawerHost  Background="Yellow" IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}">
+
+            <!--#region ListBox-->
+            <materialDesign:DrawerHost.LeftDrawerContent>
+                <DockPanel MinWidth="212">
+                    <ToggleButton Style="{StaticResource MaterialDesignHamburgerToggleButton}" 
+                                    DockPanel.Dock="Top"
+                                    HorizontalAlignment="Right" Margin="16"
+                                    IsChecked="{Binding ElementName=MenuToggleButton, Path=IsChecked, Mode=TwoWay}" />
+                    <ListBox x:Name="DemoItemsListBox" Margin="0 16 0 16"                        
+                             ItemsSource="{Binding Users}"
+                             SelectedItem="{Binding SelectedUser}"
+                             PreviewMouseLeftButtonUp="UIElement_OnPreviewMouseLeftButtonUp">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="domain:DemoItem">
+                                <WrapPanel>
+                                    <TextBlock Text="{Binding Id}" Margin="32 0 32 0" />
+                                </WrapPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </materialDesign:DrawerHost.LeftDrawerContent>
+            <!--#endregion-->
+
+            <DockPanel>
+
+                <!--#region Header  -->
+                <materialDesign:ColorZone DockPanel.Dock="Top"  Mode="PrimaryMid" Padding="16">
+                    <DockPanel>
+
+                        <DockPanel 
+                            materialDesign:RippleAssist.IsCentered="True">
+                            <ToggleButton x:Name="MenuToggleButton" Style="{DynamicResource MaterialDesignHamburgerToggleButton}" />
+                            <materialDesign:PopupBox DockPanel.Dock="Right" Margin="10,0,0,0" PlacementMode="BottomAndAlignRightEdges">
+                                <ListBox SelectedItem="{Binding StartCmd}" ItemsSource="{Binding UserResps}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <DockPanel>
+                                                <Button Content="{Binding Name}"  Command="{Binding Command}"/>
+                                            </DockPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </materialDesign:PopupBox>
+                            <Button
+                                Command="{Binding NewTask}"
+                                DockPanel.Dock="Right" 
+                                    Style="{StaticResource MaterialDesignFloatingActionMiniButton}"
+                        Margin="8 0 8 0" HorizontalAlignment="Left"
+                        ToolTip="Добавить новую задачу">
+                                <materialDesign:PackIcon Kind="Plus"  />
+                            </Button>
+                            <Button Command="{Binding RefreshBtn}" DockPanel.Dock="Right" Style="{StaticResource MaterialDesignFloatingActionMiniButton}"
+                        Margin="8 0 8 0" HorizontalAlignment="Left"
+                        ToolTip="Обновить">
+                                <materialDesign:PackIcon Kind="Refresh"  />
+                            </Button>
+                            <materialDesign:ColorZone DockPanel.Dock="Right" Mode="Standard" Padding="8 4 8 4"  CornerRadius="2" Panel.ZIndex="1"
+                                   Margin="16 0 0 0"
+                                   materialDesign:ShadowAssist.ShadowDepth="Depth1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Button 
+                                        Command="{Binding Search}"
+                                        Style="{DynamicResource MaterialDesignToolButton}">
+                                        <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
+                                    </Button>
+                                    <TextBox Text="{Binding TextSearch}" Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Поиск по ID или названию" 
+                                     materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"
+                                     MinWidth="200" VerticalAlignment="Center" />
+
+                                </Grid>
+                            </materialDesign:ColorZone>
+
+                            <ComboBox IsEnabled="{Binding User,Converter={StaticResource converter}}" Style="{StaticResource MaterialDesignComboBox}"  FontSize="12" DockPanel.Dock="Right" 
+                                      Background="White" MinWidth="200" ItemsSource="{Binding Project.Periods}" 
+                                      SelectedItem="{Binding CurrentPeriod}" >
+                                <ComboBox.ItemTemplate  >
+                                    <DataTemplate>
+                                        <WrapPanel>
+                                            <Label Content="{Binding Title}" />
+                                        </WrapPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+
+                            <Label VerticalAlignment="Center" Content="Период" Foreground="White"  DockPanel.Dock="Right"/>
+                            <ComboBox IsEnabled="{Binding User,Converter={StaticResource converter}}" Margin="0,0,10,0" Style="{StaticResource MaterialDesignComboBox}"  
+                                      FontSize="12" DockPanel.Dock="Right" Background="White" SelectedIndex="0" MinWidth="200" ItemsSource="{Binding Projects}" 
+                                      SelectedItem="{Binding Project}" >
+                                <ComboBox.ItemTemplate  >
+                                    <DataTemplate>
+                                        <WrapPanel>
+                                            <Label Content="{Binding Name}" />
+                                        </WrapPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+
+                            <Label VerticalAlignment="Center" Content="Проект" Foreground="White"  DockPanel.Dock="Right"/>
+                            <Grid>
+                            </Grid>
+
+                        </DockPanel>
+                    </DockPanel>
+                </materialDesign:ColorZone>
+
+                <!--#endregion-->
+
+                <!--#region Content -->
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <ScrollViewer Grid.Row="1" 
+                                  HorizontalScrollBarVisibility="{Binding ElementName=DemoItemsListBox, Path=SelectedItem.HorizontalScrollBarVisibilityRequirement}"
+                                  VerticalScrollBarVisibility="{Binding ElementName=DemoItemsListBox, Path=SelectedItem.VerticalScrollBarVisibilityRequirement}" 
+                                  Padding="{Binding ElementName=DemoItemsListBox, Path=SelectedItem.MarginRequirement}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!--#region Not started-->
+                            <StackPanel>
+                                <Label Content="Не начато" />
+
+                                <ListBox  IsSynchronizedWithCurrentItem="True" SelectedItem="{Binding SelectedNotStartedTask}" HorizontalContentAlignment="Stretch"   ItemsSource="{Binding NotStarted}" >
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel />
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                    <ListBox.ItemContainerStyle>
+                                        <Style TargetType="ListBoxItem">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                                    <Setter Property="IsSelected" Value="True"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ListBox.ItemContainerStyle>
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="MouseDoubleClick" >
+                                            <i:InvokeCommandAction Command="{Binding ShowNotStartedTask}"></i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <materialDesign:Card materialDesign:ShadowAssist.ShadowEdges="All" Background="Yellow" Margin="4" Width="250" Height="120">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="*"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+                                                    <DockPanel>
+                                                        <DockPanel DockPanel.Dock="Top" >
+                                                            <TextBlock VerticalAlignment="Center" DockPanel.Dock="Right" Margin="0,0,5,0" FontWeight="Bold" Text="{Binding Id}" />
+                                                            <TextBlock FontWeight="Bold" Margin="5,0,0,0" Text="{Binding Assignee.Id}"/>
+                                                            <TextBlock DockPanel.Dock="Right" Margin="5,0,5,0" Text="{Binding CreatedBy.Id}"/>
+                                                            <TextBlock VerticalAlignment="Center" DockPanel.Dock="Right"  FontWeight="Bold" Text="CB: "/>
+
+                                                            <Grid/>
+                                                        </DockPanel>
+                                                        <DockPanel Margin="0,0,5,0" DockPanel.Dock="Right">
+                                                            <Button 
+                                                            DockPanel.Dock="Right"
+                                                            Command="{Binding DataContext.NotStartedCopyTaskTitle, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}" 
+                                                             ToolTip="Скопировать ссылку на задачу"
+                                                            Style="{StaticResource MaterialDesignToolButton}" Width="30" Padding="2 0 2 0"
+                                                materialDesign:RippleAssist.IsCentered="True">
+                                                                <materialDesign:PackIcon Kind="ContentCopy" />
+                                                            </Button>
+                                                            <Button 
+                                                            DockPanel.Dock="Right"
+                                                            Command="{Binding DataContext.NotStartedStartTimer, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}" 
+                                                             ToolTip="Запустить таймер"
+                                                            Style="{StaticResource MaterialDesignToolButton}" Width="30" Padding="2 0 2 0"
+                                                materialDesign:RippleAssist.IsCentered="True">
+                                                                <materialDesign:PackIcon Kind="Timer" />
+                                                            </Button>
+                                                        </DockPanel>
+                                                        <DockPanel Margin="7,12,0,0" DockPanel.Dock="Top">
+                                                            <TextBlock DockPanel.Dock="Left" Margin="5,0,0,0" Text="Название: "  TextWrapping="Wrap" />
+                                                            <TextBlock Margin="5,0,0,0" DockPanel.Dock="Left" Text="{Binding LowTitle}"  TextWrapping="Wrap" />
+                                                            <Grid/>
+                                                        </DockPanel>
+                                                        <DockPanel Margin="7,8,0,0" DockPanel.Dock="Top">
+                                                            <TextBlock DockPanel.Dock="Left" Margin="5,0,0,0" Text="Информация: "  TextWrapping="Wrap" />
+                                                            <TextBlock Margin="5,0,0,0" DockPanel.Dock="Left" Text="{Binding LowInfo}"  TextWrapping="Wrap" />
+                                                            <Grid/>
+                                                        </DockPanel>
+
+                                                        <Grid/>
+                                                    </DockPanel>
+                                                    <DockPanel Grid.Row="1"   Margin="0,8,0,0">
+                                                        <DockPanel Margin="0,0,0,5" VerticalAlignment="Bottom" HorizontalAlignment="Left">
+                                                            <TextBlock  FontWeight="Bold" DockPanel.Dock="Left" Margin="5,0,0,0" Text="VR: "  TextWrapping="Wrap" />
+                                                            <TextBlock  DockPanel.Dock="Left" Margin="5,0,0,0" Text="{Binding Validator.Id}"  TextWrapping="Wrap" />
+                                                            <Grid/>
+                                                        </DockPanel>
+                                                        <Button 
+                                                            DockPanel.Dock="Right"
+                                                            Command="{Binding DataContext.ShowNotStartedTaskInfo, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}" 
+                                                             ToolTip="Получить информацию"
+                                                            Style="{StaticResource MaterialDesignToolButton}" Width="30" Padding="2 0 2 0"
+                                                materialDesign:RippleAssist.IsCentered="True">
+                                                            <materialDesign:PackIcon Kind="InformationOutline" />
+                                                        </Button>
+                                                        <Button 
+                                                            DockPanel.Dock="Right"
+                                                            Command="{Binding DataContext.MakeDoneNotStarted, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}" 
+                                                                   ToolTip="Сделай так, чтобы это было сделано"
+                                                            Style="{StaticResource MaterialDesignToolButton}" Width="30" Padding="2 0 2 0"
+                                                materialDesign:RippleAssist.IsCentered="True">
+                                                            <materialDesign:PackIcon Kind="Check" />
+                                                        </Button>
+                                                        <Button 
+                                                            DockPanel.Dock="Right"
+                                                            Command="{Binding DataContext.MakeInProgressNotStarted, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}" 
+                                                                   ToolTip="Сделайте это в процессе выполнения"
+                                                            Style="{StaticResource MaterialDesignToolButton}" Width="30" Padding="2 0 2 0"
+                                                materialDesign:RippleAssist.IsCentered="True">
+                                                            <materialDesign:PackIcon Kind="Clock" />
+                                                        </Button>
+                                                        <Button  DockPanel.Dock="Right" 
+                                                                 Command="{Binding DataContext.DeleteNotStartedTask, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}" 
+                                                                 Style="{StaticResource MaterialDesignToolButton}" 
+                                                                 Width="30" Padding="2 0 2 0"
+                                                            ToolTip="Удалить задачу"
+                                                                materialDesign:RippleAssist.IsCentered="True">
+                                                            <materialDesign:PackIcon Kind="Delete" />
+                                                        </Button>
+                                                        <Grid/>
+
+
+
+                                                    </DockPanel>
+                                                </Grid>
+                                            </materialDesign:Card>
+
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ListBox>
+
+                            </StackPanel>
+                            <!--#endregion-->
+
+                            <!--#region In Progress -->
+                            <StackPanel  Grid.Column="1">
+                                <Label Content="В процессе" />
+                                <ListBox IsSynchronizedWithCurrentItem="True"  HorizontalContentAlignment="Stretch" SelectedItem="{Binding SelectedInProgressTask}" ItemsSource="{Binding InProgress}">
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel />
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="MouseDoubleClick" >
+                                            <i:InvokeCommandAction Command="{Binding ShowInProgressTask}"></i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                    <ListBox.ItemContainerStyle>
+                                        <Style TargetType="ListBoxItem">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                                    <Setter Property="IsSelected" Value="True"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ListBox.ItemContainerStyle>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <materialDesign:Card materialDesign:ShadowAssist.ShadowEdges="All" Background="#ffbf00" Margin="4" Width="250" Height="120">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="*"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+                                                    <DockPanel>
+                                                        <DockPanel DockPanel.Dock="Top" >
+                                                            <TextBlock VerticalAlignment="Center" DockPanel.Dock="Right" Margin="0,0,5,0" FontWeight="Bold" Text="{Binding Id}" />
+                                                            <TextBlock FontWeight="Bold" Margin="5,0,0,0" Text="{Binding Assignee.Id}"/>
+                                                            <TextBlock DockPanel.Dock="Right" Margin="5,0,5,0" Text="{Binding CreatedBy.Id}"/>
+                                                            <TextBlock VerticalAlignment="Center" DockPanel.Dock="Right"  FontWeight="Bold" Text="CB: "/>
+                                                            <Grid/>
+                                                        </DockPanel>
+                                                        <DockPanel Margin="0,0,5,0" DockPanel.Dock="Right">
+                                                            <Button 
+                                                            DockPanel.Dock="Right"
+                                                            Command="{Binding DataContext.InProgressCopyTaskTitle, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}" 
+                                                             ToolTip="Скопировать ссылку на задачу"
+                                                            Style="{StaticResource MaterialDesignToolButton}" Width="30" Padding="2 0 2 0"
+                                                materialDesign:RippleAssist.IsCentered="True">
+                                                                <materialDesign:PackIcon Kind="ContentCopy" />
+                                                            </Button>
+                                                            <Button 
+                                                            DockPanel.Dock="Right"
+                                                            Command="{Binding DataContext.InProgressStartTimer, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}" 
+                                                             ToolTip="Запустить таймер"
+                                                            Style="{StaticResource MaterialDesignToolButton}" Width="30" Padding="2 0 2 0"
+                                                materialDesign:RippleAssist.IsCentered="True">
+                                                                <materialDesign:PackIcon Kind="Timer" />
+                                                            </Button>
+                                                        </DockPanel>
+                                                        <DockPanel Margin="7,12,0,0" DockPanel.Dock="Top">
+                                                            <TextBlock DockPanel.Dock="Left" Margin="5,0,0,0" Text="Название: "  TextWrapping="Wrap" />
+                                                            <TextBlock Margin="5,0,0,0" DockPanel.Dock="Left" Text="{Binding LowTitle}"  TextWrapping="Wrap" />
+                                                            <Grid/>
+                                                        </DockPanel>
+                                                        <DockPanel Margin="7,8,0,0" DockPanel.Dock="Top">
+                                                            <TextBlock DockPanel.Dock="Left" Margin="5,0,0,0" Text="Информация: "  TextWrapping="Wrap" />
+                                                            <TextBlock Margin="5,0,0,0" DockPanel.Dock="Left" Text="{Binding LowInfo}"  TextWrapping="Wrap" />
+                                                            <Grid/>
+                                                        </DockPanel>
+
+                                                        <Grid/>
+                                                    </DockPanel>
+                                                    <DockPanel Grid.Row="1"   Margin="0,8,0,0">
+                                                        <DockPanel Margin="0,0,0,5" VerticalAlignment="Bottom" HorizontalAlignment="Left">
+                                                            <TextBlock  FontWeight="Bold" DockPanel.Dock="Left" Margin="5,0,0,0" Text="VR: "  TextWrapping="Wrap" />
+                                                            <TextBlock  DockPanel.Dock="Left" Margin="5,0,0,0" Text="{Binding Validator.Id}"  TextWrapping="Wrap" />
+                                                            <Grid/>
+                                                        </DockPanel>
+                                                        <Button 
+                                                            DockPanel.Dock="Right"
+                                                            Command="{Binding DataContext.ShowInProgressTaskInfo, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}" 
+                                                             ToolTip="Получить информацию"
+                                                            Style="{StaticResource MaterialDesignToolButton}" Width="30" Padding="2 0 2 0"
+                                                materialDesign:RippleAssist.IsCentered="True">
+                                                            <materialDesign:PackIcon Kind="InformationOutline" />
+                                                        </Button>
+                                                        <Button 
+                                                            DockPanel.Dock="Right"
+                                                            Command="{Binding DataContext.MakeDoneInProgress, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}" 
+                                                                   ToolTip="Сделай так, чтобы это было сделано"
+                                                            Style="{StaticResource MaterialDesignToolButton}" Width="30" Padding="2 0 2 0"
+                                                materialDesign:RippleAssist.IsCentered="True">
+                                                            <materialDesign:PackIcon Kind="Check" />
+                                                        </Button>
+
+                                                        <Button 
+                                                            DockPanel.Dock="Right"
+                                                            Command="{Binding DataContext.MakeNotStartedInProgress, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}" 
+                                                                   ToolTip="Сделайте так, чтобы он не запускался"
+                                                                Style="{StaticResource MaterialDesignToolButton}" Width="30" Padding="2 0 2 0"
+                                                        materialDesign:RippleAssist.IsCentered="True">
+                                                            <materialDesign:PackIcon Kind="Close" 
+                                                        />
+                                                        </Button>
+                                                        <Button  DockPanel.Dock="Right"  Command="{Binding DataContext.DeleteInProgressTask, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}" Style="{StaticResource MaterialDesignToolButton}" Width="30" Padding="2 0 2 0"
+                                                            ToolTip="Удалить задачу"
+                                                                materialDesign:RippleAssist.IsCentered="True">
+                                                            <materialDesign:PackIcon Kind="Delete" />
+                                                        </Button>
+                                                        <Grid/>
+
+
+
+                                                    </DockPanel>
+                                                </Grid>
+                                            </materialDesign:Card>
+
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+
+
+                            </StackPanel>
+                            <!--#endregion-->
+
+                            <!--#region Done-->
+                            <StackPanel  Grid.Column="2">
+                                <Label Content="Сделано"/>
+                                <ListBox IsSynchronizedWithCurrentItem="True" HorizontalContentAlignment="Stretch" SelectedItem="{Binding SelectedDoneTask}" ItemsSource="{Binding Done}">
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel />
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="MouseDoubleClick" >
+                                            <i:InvokeCommandAction Command="{Binding ShowDoneTask}"></i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                    <ListBox.ItemContainerStyle>
+                                        <Style TargetType="ListBoxItem">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                                    <Setter Property="IsSelected" Value="True"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ListBox.ItemContainerStyle>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <materialDesign:Card materialDesign:ShadowAssist.ShadowEdges="All" Background="	#bfff00" Margin="4" Width="250" Height="120">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="*"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+                                                    <DockPanel>
+                                                        <DockPanel DockPanel.Dock="Top" >
+                                                            <TextBlock VerticalAlignment="Center" DockPanel.Dock="Right" Margin="0,0,5,0" FontWeight="Bold" Text="{Binding Id}" />
+                                                            <TextBlock FontWeight="Bold" Margin="5,0,0,0" Text="{Binding Assignee.Id}"/>
+                                                            <TextBlock DockPanel.Dock="Right" Margin="5,0,5,0" Text="{Binding CreatedBy.Id}"/>
+                                                            <TextBlock VerticalAlignment="Center" DockPanel.Dock="Right"  FontWeight="Bold" Text="CB: "/>
+                                                            <Grid/>
+                                                        </DockPanel>
+                                                        <DockPanel Margin="0,0,5,0" DockPanel.Dock="Right">
+                                                            <Button 
+                                                            DockPanel.Dock="Right"
+                                                            Command="{Binding DataContext.DoneCopyTaskTitle, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}" 
+                                                             ToolTip="Скопировать ссылку на задачу"
+                                                            Style="{StaticResource MaterialDesignToolButton}" Width="30" Padding="2 0 2 0"
+                                                materialDesign:RippleAssist.IsCentered="True">
+                                                                <materialDesign:PackIcon Kind="ContentCopy" />
+                                                            </Button>
+                                                            <Button 
+                                                            DockPanel.Dock="Right"
+                                                            Command="{Binding DataContext.DoneStartTimer, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}" 
+                                                             ToolTip="Запустить таймер"
+                                                            Style="{StaticResource MaterialDesignToolButton}" Width="30" Padding="2 0 2 0"
+                                                materialDesign:RippleAssist.IsCentered="True">
+                                                                <materialDesign:PackIcon Kind="Timer" />
+                                                            </Button>
+                                                        </DockPanel>
+                                                        <DockPanel Margin="7,12,0,0" DockPanel.Dock="Top">
+                                                            <TextBlock DockPanel.Dock="Left" Margin="5,0,0,0" Text="Название: "  TextWrapping="Wrap" />
+                                                            <TextBlock Margin="5,0,0,0" DockPanel.Dock="Left" Text="{Binding LowTitle}"  TextWrapping="Wrap" />
+                                                            <Grid/>
+                                                        </DockPanel>
+                                                        <DockPanel Margin="7,8,0,0" DockPanel.Dock="Top">
+                                                            <TextBlock DockPanel.Dock="Left" Margin="5,0,0,0" Text="Информация: "  TextWrapping="Wrap" />
+                                                            <TextBlock Margin="5,0,0,0" DockPanel.Dock="Left" Text="{Binding LowInfo}"  TextWrapping="Wrap" />
+                                                            <Grid/>
+                                                        </DockPanel>
+                                                        <Grid/>
+                                                    </DockPanel>
+                                                    <DockPanel Grid.Row="1"   Margin="0,8,0,0">
+                                                        <DockPanel Margin="0,0,0,5" VerticalAlignment="Bottom" HorizontalAlignment="Left">
+                                                            <TextBlock  FontWeight="Bold" DockPanel.Dock="Left" Margin="5,0,0,0" Text="VR: "  TextWrapping="Wrap" />
+                                                            <TextBlock  DockPanel.Dock="Left" Margin="5,0,0,0" Text="{Binding Validator.Id}"  TextWrapping="Wrap" />
+                                                            <Grid/>
+                                                        </DockPanel>
+                                                        <Button 
+                                                            DockPanel.Dock="Right"
+                                                            Command="{Binding DataContext.ShowDoneTaskInfo, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}" 
+                                                             ToolTip="Получить информацию"
+                                                            Style="{StaticResource MaterialDesignToolButton}" Width="30" Padding="2 0 2 0"
+                                                materialDesign:RippleAssist.IsCentered="True">
+                                                            <materialDesign:PackIcon Kind="InformationOutline" />
+                                                        </Button>
+
+                                                        <Button 
+                                                            DockPanel.Dock="Right"
+                                                            Command="{Binding DataContext.MakeInProgressDone, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}" 
+                                                                   ToolTip="Сделайте это в процессе выполнения"
+                                                            Style="{StaticResource MaterialDesignToolButton}" Width="30" Padding="2 0 2 0"
+                                                materialDesign:RippleAssist.IsCentered="True">
+                                                            <materialDesign:PackIcon Kind="Clock" />
+                                                        </Button>
+                                                        <Button 
+                                                            DockPanel.Dock="Right"
+                                                            Command="{Binding DataContext.MakeNotStartedDone, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}" 
+                                                                   ToolTip="Сделайте так, чтобы он не запускался"
+                                                                Style="{StaticResource MaterialDesignToolButton}" Width="30" Padding="2 0 2 0"
+                                                        materialDesign:RippleAssist.IsCentered="True">
+                                                            <materialDesign:PackIcon Kind="Close" 
+                                                        />
+                                                        </Button>
+                                                        <Button  DockPanel.Dock="Right"  Command="{Binding DataContext.DeleteDoneTask, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}" Style="{StaticResource MaterialDesignToolButton}" Width="30" Padding="2 0 2 0"
+                                                            ToolTip="Удалить задачу"
+                                                                materialDesign:RippleAssist.IsCentered="True">
+                                                            <materialDesign:PackIcon Kind="Delete" />
+                                                        </Button>
+                                                        <Grid/>
+
+
+
+                                                    </DockPanel>
+                                                </Grid>
+                                            </materialDesign:Card>
+
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+
+                            </StackPanel>
+                            <!--#endregion-->
+
+                        </Grid>
+                    </ScrollViewer>
+
+                    <materialDesign:Snackbar MessageQueue="{materialDesign:MessageQueue}" x:Name="MainSnackbar"
+                                            Grid.Row="1" />
+                </Grid>
+                <!--#endregion-->
+
+            </DockPanel>
+
+        </materialDesign:DrawerHost>
+    </materialDesign:DialogHost>
+</Window>
